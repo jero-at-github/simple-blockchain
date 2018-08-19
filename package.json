@@ -1,19 +1,23 @@
 {
-  "name": "simple-blockchain",
+  "name": "simple_blockchain",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Private blockchain project for Udacity nanodegree",
+  "main": "simpleChain.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "author": "Jeronimo Lopez Navarro",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jero-at-github/simple-blockchain.git"
   },
-  "author": "",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/jero-at-github/simple-blockchain/issues"
   },
-  "homepage": "https://github.com/jero-at-github/simple-blockchain#readme"
+  "homepage": "https://github.com/jero-at-github/simple-blockchain#readme",
+  "dependencies": {
+    "crypto-js": "^3.1.9-1",
+    "level": "^4.0.0"
+  }
 }
