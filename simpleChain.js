@@ -291,24 +291,24 @@ class Blockchain {
 }
 
 //Example:
-let myPrivateBC2 = new Blockchain();                         // let's instance the class
-myPrivateBC2.initChain(true)                                 // init the chain, (set the parameter to true if you want to reset the db)  
+let myPrivateBC = new Blockchain();                         // let's instance the class
+myPrivateBC.initChain(true)                                 // init the chain, (set the parameter to true if you want to reset the db)  
                                                             // if it is empty then we create automatically the genesis block    
 
-    .then( () => { return myPrivateBC2.validateBlock(0) })   // let's validate the genesis block    
+    .then( () => { return myPrivateBC.validateBlock(0) })   // let's validate the genesis block    
 
-    .then(() => { return myPrivateBC2.addBlock(null) })      // let's add a new block
-    .then(myPrivateBC2.validateBlock.bind(myPrivateBC2))      // let's validate the last block in the chain
+    .then(() => { return myPrivateBC.addBlock(null) })      // let's add a new block
+    .then(myPrivateBC.validateBlock.bind(myPrivateBC))      // let's validate the last block in the chain
 
-    .then( () => { return myPrivateBC2.addBlock(new Block("Custom body value!")) } )     // let's add a new block setting its body value
-    .then(myPrivateBC2.validateBlock.bind(myPrivateBC2))                                  // let's validate the last block in the chain
+    .then( () => { return myPrivateBC.addBlock(new Block("Custom body value!")) } )     // let's add a new block setting its body value
+    .then(myPrivateBC.validateBlock.bind(myPrivateBC))                                  // let's validate the last block in the chain
 
-    .then(myPrivateBC2.validateChain.bind(myPrivateBC2))      // let's validate the whole chain
-    .then(myPrivateBC2.printChainData)                       // let's print the whole chain
+    .then(myPrivateBC.validateChain.bind(myPrivateBC))      // let's validate the whole chain
+    .then(myPrivateBC.printChainData)                       // let's print the whole chain
 
-    .then(() => { return myPrivateBC2.corruptBlock(0) })     // let's corrupt the genesis block                  
-    .then(myPrivateBC2.printChainData)                       // let's print the whole chain
-    .then(myPrivateBC2.validateChain.bind(myPrivateBC2))      // let's validate again the whole chain
+    .then(() => { return myPrivateBC.corruptBlock(0) })     // let's corrupt the genesis block                  
+    .then(myPrivateBC.printChainData)                       // let's print the whole chain
+    .then(myPrivateBC.validateChain.bind(myPrivateBC))      // let's validate again the whole chain
 
-    .then(myPrivateBC2.reset.bind(myPrivateBC2))  // let's reset the chain
-    .then(myPrivateBC2.printChainData)           // let's print the whole chain again
+    .then(myPrivateBC.reset.bind(myPrivateBC))  // let's reset the chain
+    .then(myPrivateBC.printChainData)           // let's print the whole chain again
