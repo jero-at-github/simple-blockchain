@@ -1,4 +1,7 @@
 
+let self = module.exports;
+
+/* Persistance layer */
 const persistence = require("./persistence");
 
 /* ===== SHA256 with Crypto-js ===============================
@@ -12,7 +15,7 @@ const SHA256 = require('crypto-js/sha256');
 |  Class with a constructor for block 			   |
 |  ===============================================*/
 
-class Block {
+self.Block = class Block {
     constructor(data) {
         this.hash = "",
             this.height = 0,
@@ -26,7 +29,7 @@ class Block {
 |  Class with a constructor for new blockchain 		|
 |  ================================================*/
 
-class Blockchain {
+self.Blockchain = class Blockchain {
 
     constructor() {               
     }
@@ -57,7 +60,7 @@ class Blockchain {
                 if (length == 0) {
                     
                     console.log("Adding genesis block");
-                    this.addBlock(new Block("First block in the chain - Genesis block")).then( ()=> {
+                    this.addBlock(new self.Block("First block in the chain - Genesis block")).then( ()=> {
                         resolve();
                     });                    
                 }
@@ -107,7 +110,7 @@ class Blockchain {
            
             // if no block object is defined we use a default one
             if (newBlock == null) {
-                newBlock = new Block("Sample data");
+                newBlock = new self.Block("Sample data");
             }
 
             // get current used height in the chain
@@ -291,8 +294,9 @@ class Blockchain {
 }
 
 //Example:
-let myPrivateBC = new Blockchain();                         // let's instance the class
-myPrivateBC.initChain(true)                                 // init the chain, (set the parameter to true if you want to reset the db)  
+/*
+let myPrivateBC = new self.Blockchain();                         // let's instance the class
+myPrivateBC.initChain(false)                                 // init the chain, (set the parameter to true if you want to reset the db)  
                                                             // if it is empty then we create automatically the genesis block    
 
     .then( () => { return myPrivateBC.validateBlock(0) })   // let's validate the genesis block    
@@ -312,3 +316,4 @@ myPrivateBC.initChain(true)                                 // init the chain, (
 
     .then(myPrivateBC.reset.bind(myPrivateBC))  // let's reset the chain
     .then(myPrivateBC.printChainData)           // let's print the whole chain again
+*/
