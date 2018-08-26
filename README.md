@@ -1,3 +1,3 @@
 # Private blockchain Data
 
-Dear reviewer, please execute the simpleChain.js file to run the prepared example: node .\simpleChain.js
+Please execute the simpleChain.js file to run the prepared example: node .\simpleChain.js

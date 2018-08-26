@@ -245,7 +245,7 @@ class Blockchain {
 
                 for (var i = 0; i <= lastHeight; i++) {
                     
-                    promisesArray.push(myPrivateBC.validateBlock(i));                   
+                    promisesArray.push(this.validateBlock(i));                   
                 }
     
                 Promise.all(promisesArray).then(function(values) {                    
