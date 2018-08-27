@@ -23,12 +23,10 @@ app.listen(8000, () => {
                                                 // if the chain is empty then we create automatically the genesis block                                                       
 
         //let's add 5 new blocks                                                
-        await myPrivateBC.addBlock(null);       
-        await myPrivateBC.addBlock(null);       
-        await myPrivateBC.addBlock(null);       
-        await myPrivateBC.addBlock(null);       
-        await myPrivateBC.addBlock(null);       
-
+        for (let i= 1; i <= 5; i++) {
+            await myPrivateBC.addBlock(new simpleChain.Block("Block " + i + "!"));       
+        }        
+        
         await myPrivateBC.printChainData();     // let's print the whole chain
     })();
 } );
