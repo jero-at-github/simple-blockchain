@@ -6,16 +6,24 @@ var app = express();
 let myPrivateBC = null;
 
 // respond with the requested block
-app.get('/block/:blockHeight', async function (req, res) {
+app.get('/block/:blockHeight', async function (req, res) {    
 
     let blockHeight = parseFloat(req.params.blockHeight);
     let block = await myPrivateBC.getBlock(blockHeight);
     res.send(block);
 });
 
+// create a new block
+app.post('/block', async function (req, res) {    
+
+    let body = "";
+    let block = await myPrivateBC.addBlock(new simpleChain.Block(body));   
+    res.send(block);
+});
+
 app.listen(8000, () => {
 
-    myPrivateBC = new simpleChain.Blockchain();    // let's instance the class
+    myPrivateBC = new simpleChain.Blockchain();    // let's instance the chainblock class
 
     (async function init() {
         
