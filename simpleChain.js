@@ -144,7 +144,7 @@ self.Blockchain = class Blockchain {
 
                         // Adding block object to chain
                         persistence.addDataToLevelDB(newBlock).then( () => {                
-                            resolve();
+                            resolve(newBlock);
                         });               
                     });                                         
             });                            
