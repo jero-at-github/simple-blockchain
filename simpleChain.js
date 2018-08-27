@@ -36,21 +36,25 @@ self.Blockchain = class Blockchain {
 
     //Initialises the chain data reading from the persistance layer
     //reset: Set to true to reset the persistance data
-    initChain(reset = false)  {
+    async initChain(reset = false)  {
 
-        return new Promise( (resolve, rejection) => {                                
+        return await new Promise( (resolve, rejection) => {                                
 
             if (reset) {     
                 //reset level db                         
-                persistence.resetLevelDB().then(this.ensureGenesisBlock.bind(this)).then( () => { resolve() } );
+                persistence.resetLevelDB().then(this.ensureGenesisBlock.bind(this)).then( () => { 
+                    resolve(true);
+                });
             }
             else {                             
-                this.ensureGenesisBlock().then( () => { resolve() } );
+                this.ensureGenesisBlock().then( () => { 
+                    resolve(true);
+                });
             }        
         });        
     }
 
-    ensureGenesisBlock() {
+    async ensureGenesisBlock() {
 
          return new Promise( (resolve, rejection) => {      
             
@@ -71,7 +75,7 @@ self.Blockchain = class Blockchain {
         });     
     }
 
-    reset() {
+    async reset() {
 
         return new Promise( (resolve, reject) => {
              //reset level db                         
@@ -80,7 +84,7 @@ self.Blockchain = class Blockchain {
     }
 
     //Output the content of the chain in the console
-    printChainData() {
+    async printChainData() {
                 
         return new Promise((resolve, reject) => {
 
@@ -104,7 +108,7 @@ self.Blockchain = class Blockchain {
     }      
 
     // Add new block
-    addBlock(newBlock = null) {
+    async addBlock(newBlock = null) {
 
         return new Promise((resolve, reject) => {
            
@@ -148,19 +152,19 @@ self.Blockchain = class Blockchain {
     }
 
     // Get the last block height in the chain
-    getBlockHeight() {
+    async getBlockHeight() {
 
-        return persistence.getLevelDBDataLength();
-    }
+        return persistence.getLevelDBDataLength();        
+    }   
 
     // Get a specific block from level DB
-    getBlock(blockHeight) {        
-
+    async getBlock(blockHeight) {        
+        
         return persistence.getLevelDBDataValue(blockHeight);        
     }
 
     //Validate a block stored within levelDB
-    validateBlock(blockHeight = null) {
+    async validateBlock(blockHeight = null) {
 
         return new Promise((resolve, reject) => {
                        
@@ -235,7 +239,7 @@ self.Blockchain = class Blockchain {
     }
 
     // Validate the whole blockchain stored within levelDB
-    validateChain() {
+    async validateChain() {
 
         return new Promise((resolve, reject) => {
 
@@ -278,7 +282,7 @@ self.Blockchain = class Blockchain {
         });               
     }
 
-    corruptBlock(height) {
+    async corruptBlock(height) {
 
         return new Promise((resolve, reject) => {
 
@@ -295,25 +299,31 @@ self.Blockchain = class Blockchain {
 
 //Example:
 /*
-let myPrivateBC = new self.Blockchain();                         // let's instance the class
-myPrivateBC.initChain(false)                                 // init the chain, (set the parameter to true if you want to reset the db)  
-                                                            // if it is empty then we create automatically the genesis block    
+let myPrivateBC = new self.Blockchain();    // let's instance the class
 
-    .then( () => { return myPrivateBC.validateBlock(0) })   // let's validate the genesis block    
+(async function init() {
+    
+    await myPrivateBC.initChain();      // init the chain, (set the parameter to true if you want to reset the db)  
+                                            // if it is empty then we create automatically the genesis block                                                 
+    await myPrivateBC.validateBlock(0);     // let's validate the genesis block  
 
-    .then(() => { return myPrivateBC.addBlock(null) })      // let's add a new block
-    .then(myPrivateBC.validateBlock.bind(myPrivateBC))      // let's validate the last block in the chain
+    await myPrivateBC.addBlock(null);       // let's add a new block                                               
+    await myPrivateBC.validateBlock();      // let's validate the last block in the chain
 
-    .then( () => { return myPrivateBC.addBlock(new Block("Custom body value!")) } )     // let's add a new block setting its body value
-    .then(myPrivateBC.validateBlock.bind(myPrivateBC))                                  // let's validate the last block in the chain
+    await myPrivateBC.addBlock(new self.Block("Custom body value!"));   // let's add a new block setting its body value
+    await myPrivateBC.validateBlock();                                  // let's validate the last block in the chain
 
-    .then(myPrivateBC.validateChain.bind(myPrivateBC))      // let's validate the whole chain
-    .then(myPrivateBC.printChainData)                       // let's print the whole chain
+    await myPrivateBC.validateChain();      // let's validate the whole chain
+    await myPrivateBC.printChainData();     // let's print the whole chain
 
-    .then(() => { return myPrivateBC.corruptBlock(0) })     // let's corrupt the genesis block                  
-    .then(myPrivateBC.printChainData)                       // let's print the whole chain
-    .then(myPrivateBC.validateChain.bind(myPrivateBC))      // let's validate again the whole chain
+    await myPrivateBC.corruptBlock(0);      // let's corrupt the genesis block                  
+    await myPrivateBC.printChainData();     // let's print the whole chain
+    await myPrivateBC.validateChain();      // let's validate again the whole chain
 
-    .then(myPrivateBC.reset.bind(myPrivateBC))  // let's reset the chain
-    .then(myPrivateBC.printChainData)           // let's print the whole chain again
+    await myPrivateBC.reset();              // let's reset the chain
+    await myPrivateBC.printChainData();     // let's print the whole chain again
+})();
 */
+                                
+                                                              
+                                                           
