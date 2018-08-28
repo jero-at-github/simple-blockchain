@@ -31,7 +31,7 @@ self.getLevelDBDataValue = function (key) {
         db.get(key, function (err, value) {
 
             if (err) {                
-                reject('Not found!' + err);
+                reject("Block with height " + key + " not found");
             }
             else {
                 resolve(JSON.parse(value));                
