@@ -1,6 +1,7 @@
 var express = require('express');
 var simpleChain = require('./simpleChain');
 var bodyParser = require('body-parser')
+let myPrivateBC = null;
 
 var app = express();
 
@@ -10,14 +11,27 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 })); 
 
 /* ENDPOINTS */
-let myPrivateBC = null;
 
 // respond with the requested block
 app.get('/block/:blockHeight', async function (req, res) {    
+    
+    let block = null;
+    let blockHeight = req.params.blockHeight;
 
-    let blockHeight = parseFloat(req.params.blockHeight);
-    let block = await myPrivateBC.getBlock(blockHeight);
-    res.send(block);
+    if (isNaN(blockHeight)) {
+        res.status(400).send({error: "The block height value has to be a number!"});    
+        return;
+    }
+
+    blockHeight = parseFloat(blockHeight);
+
+    try {
+        block = await myPrivateBC.getBlock(blockHeight);
+        res.send(block);
+    }
+    catch (ex) {
+        res.status(400).send({error: ex});    
+    }
 });
 
 // create a new block
