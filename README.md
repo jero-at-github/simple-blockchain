@@ -1,7 +1,7 @@
 # Private blockchain Data
 
 ## Description
-Dear reviewer, I decided to use Express as node.js module in order to build my REST API.
+Dear reviewer, I decided to use [Express](https://expressjs.com/) as node.js module in order to build my REST API.
 I installed additionally [body-parser](https://www.npmjs.com/package/body-parser) to be able to receive data in my POST endpoint.
 
 ## Endpoints
