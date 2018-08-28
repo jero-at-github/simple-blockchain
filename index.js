@@ -37,18 +37,18 @@ app.get('/block/:blockHeight', async function (req, res) {
 // create a new block
 app.post('/block', async function (req, res) {    
 
-    let block = null;
+    let createdBlock = null;
+    let blockData = null;
 
     if (req.body.body) {
 
         let body = req.body.body;
-        block = await myPrivateBC.addBlock(new simpleChain.Block(body));   
-    }
-    else {        
-        block = await myPrivateBC.addBlock();   
-    }
+        blockData = new simpleChain.Block(body);   
+    }    
+
+    createdBlock = await myPrivateBC.addBlock(blockData);   
     
-    res.send(block);
+    res.send(createdBlock);
 });
 
 /* INITIALIZATION OF HTTP SERVER */
