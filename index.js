@@ -37,7 +37,7 @@ app.post('/block', async function (req, res) {
     res.send(block);
 });
 
-/* INITIALIZTION FROM HTTP SERVER */
+/* INITIALIZATION OF HTTP SERVER */
 app.listen(8000, () => {
 
     myPrivateBC = new simpleChain.Blockchain();    // let's instance the chainblock class
