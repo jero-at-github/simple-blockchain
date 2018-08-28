@@ -84,7 +84,7 @@ self.getAllLevelDBData = function () {
     });
 }
 
-// Get all data from levelDB
+// Get length from levelDB data
 self.getLevelDBDataLength = function () {
     
     return new Promise((resolve, reject) => {
