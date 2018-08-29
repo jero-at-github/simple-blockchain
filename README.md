@@ -1,11 +1,11 @@
 # Private blockchain Data
 
 ## Description
-Dear reviewer, I decided to use [Express](https://expressjs.com/) as node.js module in order to build my REST API.
+I decided to use [Express](https://expressjs.com/) as node.js module in order to build my REST API.
 I installed additionally [body-parser](https://www.npmjs.com/package/body-parser) to be able to receive data in my POST endpoint.
 
 ## Endpoints
-I implemented the 2 required endpoints:
+I implemented the 2 endpoints:
 1. Get a block  
    It retreives a specific block (JSON data) from the blockchain determined by the blockHeight parameter.  
    GET URL path: ```localhost:8000/block/{blockHeight}```  
