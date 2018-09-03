@@ -1,9 +1,9 @@
 var express = require('express');
-var simpleChain = require('./simpleChain');
-var bodyParser = require('body-parser')
-let myPrivateBC = null;
-
 var app = express();
+var bodyParser = require('body-parser')
+
+var simpleChain = require('./simpleChain');
+let myPrivateBC = null;
 
 app.use( bodyParser.json() );       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
@@ -11,6 +11,7 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 })); 
 
 /* ENDPOINTS */
+require("./star-registration.js")(app);
 
 // respond with the requested block
 app.get('/block/:blockHeight', async function (req, res) {    
@@ -61,11 +62,13 @@ app.listen(8000, () => {
         await myPrivateBC.initChain(true);      // init the chain, (set the parameter to true if you want to reset the db)  
                                                 // if the chain is empty then we create automatically the genesis block                                                       
 
+        /*
         //let's add 5 new blocks                                                
         for (let i= 1; i <= 5; i++) {
             await myPrivateBC.addBlock(new simpleChain.Block("Block " + i + "!"));       
         }        
         
         await myPrivateBC.printChainData();     // let's print the whole chain
+        */
     })();
 } );
