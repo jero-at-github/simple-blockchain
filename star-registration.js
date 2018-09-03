@@ -4,7 +4,7 @@ const bitcoinMessage = require('bitcoinjs-message');
 module.exports = function(app) {
 
     let requests = {};
-    let windowValidation = 1000 * 60 * 5 // 300 seconds (5 minutes)
+    let windowValidation = 1000 * 60 * 5 // 300.000 milliseconds (5 minutes)
 
     // respond with the requested block
     app.get('/request/:address', async function (req, res) {    
