@@ -1,74 +1,46 @@
-var express = require('express');
-var app = express();
+/* Node.js modules */
 var bodyParser = require('body-parser')
+var app = require('express')();
 
-var simpleChain = require('./simpleChain');
-let myPrivateBC = null;
+app.use( bodyParser.json() );                       // to support JSON-encoded bodies
+app.use( bodyParser.urlencoded({extended: true}) ); // to support URL-encoded bodies
 
-app.use( bodyParser.json() );       // to support JSON-encoded bodies
-app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
-  extended: true
-})); 
-
+/* Classes */
+var Blockchain = require('./classes/blockchain.js');
+var Block = require('./classes/block.js');
+  
 /* ENDPOINTS */
-require("./star-registration.js")(app);
-
-// respond with the requested block
-app.get('/block/:blockHeight', async function (req, res) {    
-    
-    let block = null;
-    let blockHeight = req.params.blockHeight;
-
-    if (isNaN(blockHeight)) {
-        res.status(400).send({error: "The block height value has to be a number!"});    
-        return;
-    }
-
-    blockHeight = parseFloat(blockHeight);
-
-    try {
-        block = await myPrivateBC.getBlock(blockHeight);
-        res.send(block);
-    }
-    catch (ex) {
-        res.status(400).send({error: ex});    
-    }
-});
-
-// create a new block
-app.post('/block', async function (req, res) {    
-
-    let createdBlock = null;
-    let blockData = null;
-
-    if (req.body.body) {
-
-        let body = req.body.body;
-        blockData = new simpleChain.Block(body);   
-    }    
-
-    createdBlock = await myPrivateBC.addBlock(blockData);   
-    
-    res.send(createdBlock);
-});
+let myPrivateBC = new Blockchain();
+require("./routes/star-registration")(app, myPrivateBC);
+require("./routes/blockchain")(app);
 
 /* INITIALIZATION OF HTTP SERVER */
 app.listen(8000, () => {
-
-    myPrivateBC = new simpleChain.Blockchain();    // let's instance the chainblock class
-
+   
     (async function init() {
         
         await myPrivateBC.initChain(true);      // init the chain, (set the parameter to true if you want to reset the db)  
-                                                // if the chain is empty then we create automatically the genesis block                                                       
-
-        /*
-        //let's add 5 new blocks                                                
-        for (let i= 1; i <= 5; i++) {
-            await myPrivateBC.addBlock(new simpleChain.Block("Block " + i + "!"));       
-        }        
+                                                // if the chain is empty then we create automatically the genesis block                                                               
         
+        //Example:
+        /*                       
+        await myPrivateBC.validateBlock(0);     // let's validate the genesis block  
+
+        await myPrivateBC.addBlock(null);       // let's add a new block                                               
+        await myPrivateBC.validateBlock();      // let's validate the last block in the chain
+
+        await myPrivateBC.addBlock(new Block("Custom body value!"));   // let's add a new block setting its body value
+        await myPrivateBC.validateBlock();                                  // let's validate the last block in the chain
+
+        await myPrivateBC.validateChain();      // let's validate the whole chain
         await myPrivateBC.printChainData();     // let's print the whole chain
-        */
+
+        await myPrivateBC.corruptBlock(0);      // let's corrupt the genesis block                  
+        await myPrivateBC.printChainData();     // let's print the whole chain
+        await myPrivateBC.validateChain();      // let's validate again the whole chain
+
+        await myPrivateBC.reset();              // let's reset the chain
+        await myPrivateBC.printChainData();     // let's print the whole chain again      
+        */ 
     })();
 } );
