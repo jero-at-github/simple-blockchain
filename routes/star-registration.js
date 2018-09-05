@@ -1,12 +1,14 @@
 const bitcoinLib = require('bitcoinjs-lib');
 const bitcoinMessage = require('bitcoinjs-message');
 
+var Block = require('../classes/block.js');
+
 let getRemainingTime = function(validationWindow, requestTimeStamp) {
 
     return validationWindow -= ((new Date().getTime() / 1000) - requestTimeStamp).toFixed(0);
 }
 
-module.exports = function(app) {
+module.exports = function(app, blockchain) {
 
     let requests = {};                  // Object to save the current status of users requests
     let timeToExpire = 60 * 5    // 300 seconds (5 minutes)
@@ -177,7 +179,7 @@ module.exports = function(app) {
             }
 
             // create block and add it to the blockchain
-            let blockBody = new simpleChain.Block({
+            let blockBody = new Block({
                 address: address,
                 star: star
             });   
