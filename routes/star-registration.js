@@ -174,7 +174,7 @@ module.exports = function(app, blockchain) {
 
             // encode story into hex format
             if (star.story) {
-                let encodedStory = Buffer.from(star.story, 'ascii').toString('hex');
+                let encodedStory = Buffer.from(star.story, 'ascii', ).slice(0, 500).toString('hex');
                 star.story = encodedStory;
             }
 
