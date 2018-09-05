@@ -25,18 +25,45 @@ module.exports = function(app, blockchain) {
 
     // create a new block
     app.post('/block', async function (req, res) {    
-
-        let createdBlock = null;
-        let blockData = null;
-
-        if (req.body.body) {
-
-            let body = req.body.body;
-            blockData = new simpleChain.Block(body);   
-        }    
-
-        createdBlock = await blockchain.addBlock(blockData);   
         
+        let address = null;
+        let star = null;
+        
+        // validate mandatory parameters
+        if (!req.body.address) {
+            res.status(400).send({error: "The address value is missing"});    
+            return;
+        }            
+        else if (!req.body.star) {
+            res.status(400).send({error: "The star object value is missing"});    
+            return;
+        }
+        else if (!req.body.star.right_ascension) {
+            res.status(400).send({error: "The star object doesn't contain a right ascension value"});    
+            return;
+        }
+        else if (!req.body.star.declination) {
+            res.status(400).send({error: "The star object doesn't contain a declination value"});    
+            return;
+        }                 
+       
+        address = req.body.address;
+        star = req.body.star;
+
+        if (star.story) {
+            let encodedStory = Buffer(5).from(star.story, 'ascii').toString('hex');
+            star.story = encodedStory;
+        }
+
+        // create block and add it to the blockchain
+        let blockBody = new simpleChain.Block({
+            address: address,
+            star: star
+        });   
+
+        let createdBlock = await blockchain.addBlock(blockBody);           
+
+        // return block 
         res.send(createdBlock);
     });
 }
