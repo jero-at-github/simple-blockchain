@@ -19,9 +19,12 @@ app.listen(8000, () => {
    
     (async function init() {
         
-        await myPrivateBC.initChain(true);      // init the chain, (set the parameter to true if you want to reset the db)  
-                                                // if the chain is empty then we create automatically the genesis block                                                               
-        
+        await myPrivateBC.initChain();      // init the chain, (set the parameter to true if you want to reset the db)  
+                                            // if the chain is empty then we create automatically the genesis block                                                               
+
+        await myPrivateBC.validateBlock(0);     // let's validate the genesis block  
+        await myPrivateBC.printChainData();     // let's print the whole chain
+
         //Example:
         /*                       
         await myPrivateBC.validateBlock(0);     // let's validate the genesis block  
