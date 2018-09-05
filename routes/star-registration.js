@@ -1,10 +1,15 @@
 const bitcoinLib = require('bitcoinjs-lib');
 const bitcoinMessage = require('bitcoinjs-message');
 
+let getRemainingTime = function(validationWindow, requestTimeStamp) {
+
+    return validationWindow -= ((new Date().getTime() / 1000) - requestTimeStamp).toFixed(0);
+}
+
 module.exports = function(app) {
 
     let requests = {};                  // Object to save the current status of users requests
-    let timeToExpire = 1000 * 60 * 5    // 300000 milliseconds (5 minutes)
+    let timeToExpire = 60 * 5    // 300 seconds (5 minutes)
     
     /**
      * @desc Initiate a request action
@@ -13,23 +18,41 @@ module.exports = function(app) {
     app.get('/request/:address', async function (req, res) {    
         
         try {              
-            let currentTimeStamp = new Date().getTime();
-            let address = req.params.address;     
-            let messageToValidate = address + ":" + currentTimeStamp + ":" + "starRegistry";           
-                              
-            // save in memory the state
-            requests[address] = {
-                address: address,
-                requestTimeStamp: currentTimeStamp,
-                message: messageToValidate,                
-                validationWindow: timeToExpire
-            };          
+            let address = req.params.address;    
+
+            //check if the request already existed
+            if (requests[address]) {
+                // update validationWindow                        
+                requests[address].validationWindow = getRemainingTime(requests[address].validationWindow, requests[address].requestTimeStamp);
+
+                 // validate if the window time is still valid
+                if (requests[address].validationWindow <= 0) {
+                    
+                    // request expired, remove it to force to generate a new one
+                    delete requests[address];
+
+                    res.status(400).send({error: "The time to validate the signature has expired. Please initiate a new request."});    
+                    return;
+                }        
+            }           
+            else {
+                let currentTimeStamp = (new Date().getTime() / 1000);                
+                let messageToValidate = address + ":" + currentTimeStamp + ":" + "starRegistry";           
+                                
+                // save in memory the state
+                requests[address] = {
+                    address: address,
+                    requestTimeStamp: currentTimeStamp,
+                    message: messageToValidate,                
+                    validationWindow: timeToExpire
+                };          
+            }            
                         
             // return response
             res.json(requests[address]);
         }
         catch (ex) {
-            res.status(400).send({error: ex});    
+            res.status(500).send({error: ex});    
         }
     });
 
@@ -40,17 +63,11 @@ module.exports = function(app) {
     */
     app.post('/message-signature/validate', async function (req, res) {    
         
-        try {                
-            // validate if there is a valid request for this address
-            if (!requests[address]) {
-                res.status(400).send({error: "There is no current request for this address, please initiate a request first."});    
-                return;
-            }
-
+        try {                            
             // validate mandatory parameters
             let address = null;
             let signature = null;           
-                        
+
             if (!req.body.address) {
                 res.status(400).send({error: "The address value is missing"});    
                 return;
@@ -63,8 +80,14 @@ module.exports = function(app) {
             address = req.body.address;
             signature = req.body.signature;            
 
-            // update validationWindow            
-            requests[address].validationWindow -= new Date().getTime();
+            // validate if there is a current request for this address
+            if (!requests[address]) {
+                res.status(400).send({error: "There is no current request for this address, please initiate a request first."});    
+                return;
+            }
+
+            // update validationWindow                        
+            requests[address].validationWindow = getRemainingTime(requests[address].validationWindow, requests[address].requestTimeStamp);
             
             // validate if the window time is still valid
             if (requests[address].validationWindow <= 0) {
@@ -101,8 +124,97 @@ module.exports = function(app) {
             }   
         }
         catch (ex) {
-            res.status(400).send({error: ex});    
+            res.status(500).send({error: ex});    
         }                         
+    });
+
+     /**
+     * @desc Create a new block and add it to the blockchain
+     * @param string $address - wallet address     
+     * @param string $star - star object         
+    */
+    app.post('/block', async function (req, res) {    
+                
+        try {             
+            let address = null;
+            let star = null;
+            
+            // validate mandatory parameters
+            if (!req.body.address) {
+                res.status(400).send({error: "The address value is missing"});    
+                return;
+            }            
+            else if (!req.body.star) {
+                res.status(400).send({error: "The star object value is missing"});    
+                return;
+            }
+            else if (!req.body.star.dec) {
+                res.status(400).send({error: "The star object doesn't contain a right ascension value"});    
+                return;
+            }
+            else if (!req.body.star.ra) {
+                res.status(400).send({error: "The star object doesn't contain a declination value"});    
+                return;
+            }                 
+        
+            address = req.body.address;
+            star = req.body.star;
+
+            // validate if there is a current request for this address and the message as validated
+            if (!requests[address]) {
+                res.status(400).send({error: "There is no current request for this address, please initiate a request first."});    
+                return;
+            }
+            else if (requests[address].messageSignature != "valid") {
+                res.status(400).send({error: "The current request was not validated yet, please validate first providing the requested signature."});    
+                return;
+            }
+
+            // encode story into hex format
+            if (star.story) {
+                let encodedStory = Buffer.from(star.story, 'ascii').toString('hex');
+                star.story = encodedStory;
+            }
+
+            // create block and add it to the blockchain
+            let blockBody = new simpleChain.Block({
+                address: address,
+                star: star
+            });   
+
+            let createdBlock = await blockchain.addBlock(blockBody);           
+
+            // return block 
+            res.send(createdBlock);
+        }
+        catch (ex) {
+            res.status(500).send({error: ex});    
+        }               
+    });
+  
+    /**
+     * @desc Respond with the requested block
+     * @param number $blockHeight - height of the requested block 
+    */
+    app.get('/block/:blockHeight', async function (req, res) {    
+        
+        let block = null;
+        let blockHeight = req.params.blockHeight;
+
+        if (isNaN(blockHeight)) {
+            res.status(400).send({error: "The block height value has to be a number!"});    
+            return;
+        }
+
+        blockHeight = parseFloat(blockHeight);
+
+        try {
+            block = await blockchain.getBlock(blockHeight);
+            res.send(block);
+        }
+        catch (ex) {
+            res.status(400).send({error: ex});    
+        }
     });
 
 }
