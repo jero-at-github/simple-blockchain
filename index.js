@@ -12,7 +12,6 @@ var Block = require('./classes/block.js');
 /* ENDPOINTS */
 let myPrivateBC = new Blockchain();
 require("./routes/star-registration")(app, myPrivateBC);
-require("./routes/blockchain")(app);
 
 /* INITIALIZATION OF HTTP SERVER */
 app.listen(8000, () => {
