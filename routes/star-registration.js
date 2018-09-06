@@ -168,7 +168,7 @@ module.exports = function(app, blockchain) {
         }                         
     });
 
-     /**
+    /**
      * @desc Create a new block and add it to the blockchain
      * @param string $address - wallet address     
      * @param string $star - star object         
@@ -236,7 +236,7 @@ module.exports = function(app, blockchain) {
      * @desc Respond with the requested block
      * @param number $hash - hash of the requested block 
     */
-   app.get('/stars/hash/:hash', async function (req, res) {    
+    app.get('/stars/hash/:hash', async function (req, res) {    
         
         let blocks = null;
         let hash = req.params.hash;        
@@ -261,7 +261,7 @@ module.exports = function(app, blockchain) {
      * @desc Respond with the requested blocks
      * @param number $address - address of the requested blocks 
     */
-     app.get('/stars/address/:address', async function (req, res) {    
+    app.get('/stars/address/:address', async function (req, res) {    
         
         let blocks = null;
         let address = req.params.address;        
