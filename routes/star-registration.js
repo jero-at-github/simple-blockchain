@@ -234,6 +234,56 @@ module.exports = function(app, blockchain) {
   
     /**
      * @desc Respond with the requested block
+     * @param number $hash - hash of the requested block 
+    */
+   app.get('/stars/hash/:hash', async function (req, res) {    
+        
+        let blocks = null;
+        let hash = req.params.hash;        
+       
+        try {            
+            blocks = await blockchain.getBlockByHash(hash);
+
+            if (blocks.length == 0) {
+                res.status(400).send({error: "No block were found with this hash value"});    
+                return;
+            }
+            else {
+                res.send(blocks);
+            }            
+        }
+        catch (ex) {
+            res.status(400).send({error: ex});    
+        }
+    });
+
+    /**
+     * @desc Respond with the requested blocks
+     * @param number $address - address of the requested blocks 
+    */
+     app.get('/stars/address/:address', async function (req, res) {    
+        
+        let blocks = null;
+        let address = req.params.address;        
+    
+        try {            
+            blocks = await blockchain.getBlockByWalletAddress(address);
+
+            if (blocks.length == 0) {
+                res.status(400).send({error: "No block were found with this wallet address value"});    
+                return;
+            }
+            else {
+                res.send(blocks);
+            }            
+        }
+        catch (ex) {
+            res.status(400).send({error: ex});    
+        }
+    });
+
+    /**
+     * @desc Respond with the requested block
      * @param number $blockHeight - height of the requested block 
     */
     app.get('/block/:blockHeight', async function (req, res) {    
@@ -256,6 +306,6 @@ module.exports = function(app, blockchain) {
             res.status(400).send({error: ex});    
         }
     });
-
+    
 }
 

@@ -48,7 +48,7 @@ self = class Blockchain {
                 if (length == 0) {
                     
                     console.log("Adding genesis block");
-                    this.addBlock(new Block("First block in the chain - Genesis block")).then( ()=> {
+                    this.addBlock(new Block("Genesis block, be the first to register a star in the blockchain!")).then( ()=> {
                         resolve();
                     });                    
                 }
@@ -145,6 +145,18 @@ self = class Blockchain {
     async getBlock(blockHeight) {        
         
         return persistence.getLevelDBDataValue(blockHeight);        
+    }
+
+    // Get a specific block from level DB
+    async getBlockByHash(hash) {        
+        
+        return persistence.getLevelDBDataValueByAttribute("hash", hash);        
+    }
+
+    // Get a specific block from level DB
+    async getBlockByWalletAddress(address) {        
+        
+        return persistence.getLevelDBDataValueByAttribute("body.address", address);        
     }
 
     //Validate a block stored within levelDB

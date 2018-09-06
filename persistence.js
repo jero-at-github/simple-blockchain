@@ -40,6 +40,34 @@ self.getLevelDBDataValue = function (key) {
     });         
 }
 
+// Get data from levelDB with key
+self.getLevelDBDataValueByAttribute = function (attributes, value) {
+
+    return new Promise((resolve, reject) => {
+        
+        let blocks = [];
+
+        db.createReadStream()
+            .on('data', function (data) {
+
+                let attributeValue = JSON.parse(data.value);
+                attributes.split(".").forEach(attribute => {
+                    attributeValue = attributeValue[attribute];
+                });
+
+                if (attributeValue == value) {
+                    blocks.push(JSON.parse(data.value));
+                }                
+            })
+            .on('error', function (err) {
+                reject('Unable to read data stream!' + err);
+            })
+            .on('close', function () {
+                resolve(blocks);
+            });
+    }); 
+}
+
 // Add data to levelDB with value
 self.addDataToLevelDB = function (value) {
 
