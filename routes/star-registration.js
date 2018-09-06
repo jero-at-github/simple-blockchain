@@ -249,6 +249,13 @@ module.exports = function(app, blockchain) {
                 return;
             }
             else {
+                // decode stroy value from hex to ascii
+                blocks.forEach(block => {
+                    if (block.body.star && block.body.star.story) {
+                        block.body.star.story = new Buffer(block.body.star.story, 'hex').toString("ascii");
+                    }
+                });             
+
                 res.send(blocks);
             }            
         }
@@ -274,7 +281,7 @@ module.exports = function(app, blockchain) {
                 return;
             }
             else {
-
+                // decode stroy value from hex to ascii
                 blocks.forEach(block => {
                     if (block.body.star && block.body.star.story) {
                         block.body.star.story = new Buffer(block.body.star.story, 'hex').toString("ascii");
@@ -307,6 +314,12 @@ module.exports = function(app, blockchain) {
 
         try {
             block = await blockchain.getBlock(blockHeight);
+
+            // decode stroy value from hex to ascii
+            if (block.body.star && block.body.star.story) {
+                block.body.star.story = new Buffer(block.body.star.story, 'hex').toString("ascii");
+            }                
+
             res.send(block);
         }
         catch (ex) {
