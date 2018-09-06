@@ -274,6 +274,13 @@ module.exports = function(app, blockchain) {
                 return;
             }
             else {
+
+                blocks.forEach(block => {
+                    if (block.body.star && block.body.star.story) {
+                        block.body.star.story = new Buffer(block.body.star.story, 'hex').toString("ascii");
+                    }
+                });
+
                 res.send(blocks);
             }            
         }
