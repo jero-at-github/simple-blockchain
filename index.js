@@ -24,7 +24,7 @@ app.listen(8000, () => {
         await myPrivateBC.validateBlock(0);     // let's validate the genesis block  
         await myPrivateBC.printChainData();     // let's print the whole chain
 
-        //Example:
+        //Some examples:
         /*                       
         await myPrivateBC.validateBlock(0);     // let's validate the genesis block  
 
