@@ -3,16 +3,19 @@ const bitcoinMessage = require('bitcoinjs-message');
 
 var Block = require('../classes/block.js');
 
-let getRemainingTime = function(validationWindow, requestTimeStamp) {
+let requests = {};           // Object to save the current status of users requests
+let timeToExpire = 60 * 5    // 300 seconds (5 minutes)
 
-    return validationWindow -= ((new Date().getTime() / 1000).toFixed(0) - requestTimeStamp).toFixed(0);
+let getRemainingTime = function(requestTimeStamp) {
+
+    let currentTimeStamp = parseFloat((new Date().getTime() / 1000).toFixed(0));
+    let remainingTime = timeToExpire - (currentTimeStamp - parseFloat(requestTimeStamp));
+
+    return remainingTime;     
 }
 
 module.exports = function(app, blockchain) {
-
-    let requests = {};           // Object to save the current status of users requests
-    let timeToExpire = 60 * 5    // 300 seconds (5 minutes)
-    
+       
     /**
      * @desc Initiate a request action
      * @param string $address - wallet address
@@ -33,11 +36,7 @@ module.exports = function(app, blockchain) {
                 // there is already a request but was not validated yet
                 else {
                     // update validationWindow                        
-                    requests[address].status.validationWindow = 
-                        getRemainingTime(
-                            requests[address].status.validationWindow, 
-                            requests[address].status.requestTimeStamp
-                        );
+                    requests[address].status.validationWindow = getRemainingTime(requests[address].status.requestTimeStamp);                        
 
                     // validate if the window time is still valid
                     if (requests[address].status.validationWindow <= 0) {
@@ -47,16 +46,17 @@ module.exports = function(app, blockchain) {
 
                         res.status(400).send({error: "The time to validate the signature has expired. Please initiate a new request."});    
                         return;
-                    }        
-                }    
-                
-                // return response
-                res.json({
-                    address:            requests[address].status.address,
-                    requestTimeStamp:   requests[address].status.requestTimeStamp,
-                    message:            requests[address].status.message,                
-                    validationWindow:   requests[address].status.validationWindow
-                });
+                    }
+                    else {
+                        // return response
+                        res.json({
+                            address:            requests[address].status.address,
+                            requestTimeStamp:   requests[address].status.requestTimeStamp,
+                            message:            requests[address].status.message,                
+                            validationWindow:   requests[address].status.validationWindow
+                        });
+                    }                                        
+                }                                    
             }           
             else {
                 // create a new request for this wallet address
@@ -125,12 +125,8 @@ module.exports = function(app, blockchain) {
             }
                                
             // update validationWindow                        
-            requests[address].status.validationWindow = 
-                getRemainingTime(
-                    requests[address].status.validationWindow, 
-                    requests[address].status.requestTimeStamp
-                );
-            
+            requests[address].status.validationWindow = getRemainingTime(requests[address].status.requestTimeStamp);            
+                            
             // validate if the window time is still valid
             if (requests[address].status.validationWindow <= 0) {
                 
