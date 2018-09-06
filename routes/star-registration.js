@@ -5,12 +5,12 @@ var Block = require('../classes/block.js');
 
 let getRemainingTime = function(validationWindow, requestTimeStamp) {
 
-    return validationWindow -= ((new Date().getTime() / 1000) - requestTimeStamp).toFixed(0);
+    return validationWindow -= ((new Date().getTime() / 1000).toFixed(0) - requestTimeStamp).toFixed(0);
 }
 
 module.exports = function(app, blockchain) {
 
-    let requests = {};                  // Object to save the current status of users requests
+    let requests = {};           // Object to save the current status of users requests
     let timeToExpire = 60 * 5    // 300 seconds (5 minutes)
     
     /**
@@ -22,36 +22,67 @@ module.exports = function(app, blockchain) {
         try {              
             let address = req.params.address;    
 
-            //check if the request already existed
+            // check if the request already existed
             if (requests[address]) {
-                // update validationWindow                        
-                requests[address].validationWindow = getRemainingTime(requests[address].validationWindow, requests[address].requestTimeStamp);
 
-                 // validate if the window time is still valid
-                if (requests[address].validationWindow <= 0) {
-                    
-                    // request expired, remove it to force to generate a new one
-                    delete requests[address];
-
-                    res.status(400).send({error: "The time to validate the signature has expired. Please initiate a new request."});    
+                // check if the request was already validated 
+                if (requests[address].registerStar) {
+                    res.status(400).send({error: "A request for this wallet address was already sucessfully validated."});    
                     return;
-                }        
+                }
+                // there is already a request but was not validated yet
+                else {
+                    // update validationWindow                        
+                    requests[address].status.validationWindow = 
+                        getRemainingTime(
+                            requests[address].status.validationWindow, 
+                            requests[address].status.requestTimeStamp
+                        );
+
+                    // validate if the window time is still valid
+                    if (requests[address].status.validationWindow <= 0) {
+                    
+                        // request expired, remove it to force to generate a new one
+                        delete requests[address];
+
+                        res.status(400).send({error: "The time to validate the signature has expired. Please initiate a new request."});    
+                        return;
+                    }        
+                }    
+                
+                // return response
+                res.json({
+                    address:            requests[address].status.address,
+                    requestTimeStamp:   requests[address].status.requestTimeStamp,
+                    message:            requests[address].status.message,                
+                    validationWindow:   requests[address].status.validationWindow
+                });
             }           
             else {
-                let currentTimeStamp = (new Date().getTime() / 1000);                
+                // create a new request for this wallet address
+                let currentTimeStamp = (new Date().getTime() / 1000).toFixed(0);                
                 let messageToValidate = address + ":" + currentTimeStamp + ":" + "starRegistry";           
-                                
+                                               
                 // save in memory the state
-                requests[address] = {
-                    address: address,
-                    requestTimeStamp: currentTimeStamp,
-                    message: messageToValidate,                
-                    validationWindow: timeToExpire
-                };          
-            }            
-                        
-            // return response
-            res.json(requests[address]);
+                requests[address] = {                   
+                    registerStar: false,
+                    status: {
+                        address:            address,
+                        requestTimeStamp:   currentTimeStamp,
+                        message:            messageToValidate,
+                        validationWindow:   timeToExpire,
+                        messageSignature:   ""
+                    }
+                };       
+                
+                // return response
+                res.json({
+                    address:            address,
+                    requestTimeStamp:   currentTimeStamp,
+                    message:            messageToValidate,                
+                    validationWindow:   timeToExpire
+                });
+            }                                           
         }
         catch (ex) {
             res.status(500).send({error: ex});    
@@ -87,12 +118,21 @@ module.exports = function(app, blockchain) {
                 res.status(400).send({error: "There is no current request for this address, please initiate a request first."});    
                 return;
             }
-
+            // check if the request was already validated 
+            else if (requests[address].registerStar) {
+                res.status(400).send({error: "A request for this wallet address was already sucessfully validated."});    
+                return;
+            }
+                               
             // update validationWindow                        
-            requests[address].validationWindow = getRemainingTime(requests[address].validationWindow, requests[address].requestTimeStamp);
+            requests[address].status.validationWindow = 
+                getRemainingTime(
+                    requests[address].status.validationWindow, 
+                    requests[address].status.requestTimeStamp
+                );
             
             // validate if the window time is still valid
-            if (requests[address].validationWindow <= 0) {
+            if (requests[address].status.validationWindow <= 0) {
                 
                 // request expired, remove it to force to generate a new one
                 delete requests[address];
@@ -101,32 +141,34 @@ module.exports = function(app, blockchain) {
                 return;
             }        
             // validate the signature
-            else if (!bitcoinMessage.verify(requests[address].message, address, signature)) {
-                                               
+            else if (!bitcoinMessage.verify(requests[address].status.message, address, signature)) {
+                
+                requests[address].status.messageSignature = "invalid";
+
                 res.status(400).send({error: "The signature provided was not correct. Please review your generated signature."});    
                 return;
             }
             // success
-            else {                
-                let response = {
-                    registerStar: true,
-                    status: {
-                        address: address,
-                        requestTimeStamp: requests[address].requestTimeStamp,
-                        message: requests[address].message,
-                        validationWindow: requests[address].validationWindow,
-                        messageSignature: "valid"
-                    }
-                };
-
+            else {                            
                 // save in memory the state
-                requests[address].messageSignature = "valid";
+                requests[address].registerStar = true;
+                requests[address].status.messageSignature = "valid";
 
-                res.send(response);
+                res.send(requests[address]);
             }   
         }
         catch (ex) {
-            res.status(500).send({error: ex});    
+
+            let error = "";
+
+            if (ex.message) {
+                error = ex.message;
+            }
+            else {
+                error = ex;
+            }
+
+            res.status(500).send({error: error});    
         }                         
     });
 
@@ -167,7 +209,7 @@ module.exports = function(app, blockchain) {
                 res.status(400).send({error: "There is no current request for this address, please initiate a request first."});    
                 return;
             }
-            else if (requests[address].messageSignature != "valid") {
+            else if (requests[address].status.messageSignature != "valid") {
                 res.status(400).send({error: "The current request was not validated yet, please validate first providing the requested signature."});    
                 return;
             }
