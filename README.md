@@ -32,13 +32,13 @@ I installed additionally [body-parser](https://www.npmjs.com/package/body-parser
    Returns the recently created block data
 
 5. Search a star by hash  
-    [GET] URL path: ```localhost:8000/star/:[HASH]}```  
+    [GET] URL path: ```localhost:8000/star/:hash}```  
    * @desc Respond with the requested block
    * @param number $hash - hash of the requested block
    Returns the block which hash was searched
 
 5. Search stars by wallet address  
-    [GET] URL path: ```localhost:8000/address/:[ADDRESS]}```  
+    [GET] URL path: ```localhost:8000/address/:address}```  
    * @desc Respond with the requested blocks
    * @param number $address - address of the requested blocks 
    Returns the stars associated to a specific wallet address
