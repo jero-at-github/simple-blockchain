@@ -6,7 +6,7 @@ I installed additionally [body-parser](https://www.npmjs.com/package/body-parser
 
 ## Endpoints
 1.  Request    
-    [POST] URL path: ```localhost:8000/request/```  
+    [POST] URL path: ```localhost:8000/requestValidation/```  
     * @desc Initiate a request action
     * @param string $address - wallet address
     Returns the remaing time to validate, request timestamp and the message to validate
@@ -32,13 +32,13 @@ I installed additionally [body-parser](https://www.npmjs.com/package/body-parser
    Returns the recently created block data
 
 5. Search a star by hash  
-    [GET] URL path: ```localhost:8000/star/:hash}```  
+    [GET] URL path: ```localhost:8000/star/:[HASH]}```  
    * @desc Respond with the requested block
    * @param number $hash - hash of the requested block
    Returns the block which hash was searched
 
 5. Search stars by wallet address  
-    [GET] URL path: ```localhost:8000/address/:address}```  
+    [GET] URL path: ```localhost:8000/address/:[ADDRESS]}```  
    * @desc Respond with the requested blocks
    * @param number $address - address of the requested blocks 
    Returns the stars associated to a specific wallet address
