@@ -224,6 +224,9 @@ module.exports = function(app, blockchain) {
 
             let createdBlock = await blockchain.addBlock(blockBody);           
 
+            // the authorization should only be valid to submit a single star
+            delete requests[address];
+
             // return block 
             res.send(createdBlock);
         }
