@@ -20,10 +20,10 @@ module.exports = function(app, blockchain) {
      * @desc Initiate a request action
      * @param string $address - wallet address
     */
-    app.get('/request/:address', async function (req, res) {    
+    app.post('/request/', async function (req, res) {    
         
         try {              
-            let address = req.params.address;    
+            let address = req.body.address;    
 
             // check if the request already existed
             if (requests[address]) {
